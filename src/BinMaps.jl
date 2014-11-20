@@ -7,7 +7,7 @@ using DataArrays
 
 export AbstractBinMap, LabelMap, DataMap, BinMap, DataLabelMap
 export labelmap, datalabelmap, binmap, databinmap
-export construct, encode, decode, nlabels, supports_encoding, supports_decoding
+export encode, decode, nlabels, supports_encoding, supports_decoding
 export DISCRETIZE_UNIFORMWIDTH, DISCRETIZE_UNIFORMCOUNT
 export binedges
 
@@ -63,6 +63,6 @@ end
 include("labelmap.jl")
 include("datalabelmap.jl")
 include("binmap.jl")
-# include("databinmap.jl")
+include("databinmap.jl")
 
 end # end modules

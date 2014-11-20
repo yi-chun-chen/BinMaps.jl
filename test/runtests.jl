@@ -5,3 +5,4 @@ using DataArrays
 include("test_labelmap.jl")
 include("test_datalabelmap.jl")
 include("test_binmap.jl")
+include("test_databinmap.jl")
