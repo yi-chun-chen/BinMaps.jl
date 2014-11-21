@@ -43,6 +43,16 @@ function binmap{T<:FloatingPoint, S<:Integer}(
 
 	BinMap(i2bin, bin_edges, force_outliers_to_closest)
 end
+function binmap{T<:FloatingPoint, S<:Integer}(
+	binedges :: Vector{T},
+	         :: Type{S},
+	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE
+	)
+
+	i2bin = [i=>convert(S,i) for i in 1:(length(binedges)-1)]
+
+	BinMap(i2bin, binedges, force_outliers_to_closest)
+end
 
 function encode{T,S}(bmap::BinMap{T,S}, x::T)
 	if x < bmap.binedges[1]

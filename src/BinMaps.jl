@@ -5,10 +5,10 @@ module BinMaps
 
 using DataArrays
 
-export AbstractBinMap, LabelMap, DataMap, BinMap, DataLabelMap
+export AbstractBinMap, LabelMap, DataLabelMap, BinMap, DataBinMap
 export labelmap, datalabelmap, binmap, databinmap
 export encode, decode, nlabels, supports_encoding, supports_decoding
-export DISCRETIZE_UNIFORMWIDTH, DISCRETIZE_UNIFORMCOUNT
+export DiscretizatonAlgorithm, DISCRETIZE_UNIFORMWIDTH, DISCRETIZE_UNIFORMCOUNT
 export binedges
 
 abstract AbstractBinMap{T,S}
