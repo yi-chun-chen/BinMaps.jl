@@ -9,14 +9,17 @@ immutable BinMap{T<:FloatingPoint,S} <: AbstractBinMap{T,S}
 	binedges :: Vector{T}
 	nbins    :: Int
 	force_outliers_to_closest :: Bool # if true, real values outside of the bin ranges will be forced to the nearest bin, otherwise will throw an error
+	zero_bin :: Bool # if true, when decoding bin containing 0 return 0 instead of sampling
 end
 
 const BINMAP_DEFAULT_OUTLIER_FORCE = true
+const BINMAP_DEFAULT_ZERO_BIN      = false
 
 function BinMap{T<:FloatingPoint, S}(
 	i2bin::Dict{Int,S}, 
-	binedges::Vector{T}, 
-	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE
+	binedges::Vector{T};
+	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE,
+	zero_bin::Bool = BINMAP_DEFAULT_ZERO_BIN
 	)
 
 	length(binedges) > 1 || error("Bin edges must contain at least 2 values")
@@ -28,30 +31,36 @@ function BinMap{T<:FloatingPoint, S}(
 		bin2i[v] = k
 	end
 	
-	BinMap{T,S}(i2bin, bin2i, binedges, length(i2bin), force_outliers_to_closest)
+	BinMap{T,S}(i2bin, bin2i, binedges, length(i2bin), force_outliers_to_closest, zero_bin)
 end
 function binmap{T<:FloatingPoint, S<:Integer}(
 	data  :: AbstractArray{T},
 	nbins :: Integer,
 	      :: Type{S},
 	alg   :: DiscretizatonAlgorithm = DISCRETIZE_UNIFORMWIDTH;
-	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE
+	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE,
+	zero_bin::Bool = BINMAP_DEFAULT_ZERO_BIN
 	)
 
 	i2bin = [i=>convert(S,i) for i in 1:nbins]
 	bin_edges = binedges(alg, nbins, data)
 
-	BinMap(i2bin, bin_edges, force_outliers_to_closest)
+	BinMap(i2bin, bin_edges, 
+		force_outliers_to_closest=force_outliers_to_closest, 
+		zero_bin=zero_bin)
 end
 function binmap{T<:FloatingPoint, S<:Integer}(
 	binedges :: Vector{T},
-	         :: Type{S},
-	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE
+	         :: Type{S};
+	force_outliers_to_closest::Bool = BINMAP_DEFAULT_OUTLIER_FORCE,
+	zero_bin::Bool = BINMAP_DEFAULT_ZERO_BIN
 	)
 
 	i2bin = [i=>convert(S,i) for i in 1:(length(binedges)-1)]
 
-	BinMap(i2bin, binedges, force_outliers_to_closest)
+	BinMap(i2bin, binedges,		
+		force_outliers_to_closest=force_outliers_to_closest, 
+		zero_bin=zero_bin)
 end
 
 function encode{T,S}(bmap::BinMap{T,S}, x::T)
@@ -75,7 +84,12 @@ function decode{T,S}(bmap::BinMap{T,S}, x::S)
 	ind = bmap.bin2i[x]
 	lo  = bmap.binedges[ind]
 	hi  = bmap.binedges[ind+1]
-	rand(T)*(hi-lo) + lo
+
+	if bmap.zero_bin && lo <= 0 <= hi
+		0.0
+	else
+		rand(T)*(hi-lo) + lo
+	end
 end
 decode{T,S}(bmap::BinMap{T,S}, x) = decode(bmap, convert(S,x))::T
 decode{T,S}(bmap::BinMap{T,S}, data::AbstractArray{S}) = 

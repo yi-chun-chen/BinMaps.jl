@@ -27,3 +27,6 @@ bmap = binmap(arr, 2, Uint8)
 @test supports_encoding(bmap, uint8(1)) == false
 @test supports_decoding(bmap, 1.0) == false
 @test supports_decoding(bmap, uint8(1))
+
+bmap = binmap([-2.0,-0.1,0.9,2.0], Int, zero_bin=true)
+@test decode(bmap, uint8(2)) == 0
