@@ -51,7 +51,7 @@ function binedges{T<:FloatingPoint}(::Discretize_UniformCount, nbins::Integer, d
 		counts = counts_per_bin + (remainder > 0.0 ? 1 : 0)
 		remainder -= 1.0
 		ind += counts
-		retval[i] = data[p[i]]
+		retval[i] = data[p[ind]]
 		retval[i-1] != retval[i] || error("binedges non-unique")
 	end
 
